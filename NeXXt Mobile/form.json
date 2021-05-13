@@ -1,0 +1,112 @@
+{
+  "elements": [
+    {
+      "type": "CheckBox",
+      "name": "Active",
+      "caption": "Aktiv"
+    },
+    {
+      "type": "PasswordTextBox",
+      "name": "Token",
+      "caption": "Token",
+      "width": "600px"
+    },
+    {
+      "type": "ValidationTextBox",
+      "name": "SenderNumber",
+      "caption": "Absendernummer",
+      "width": "600px"
+    },
+    {
+      "type": "NumberSpinner",
+      "name": "Timeout",
+      "caption": "Timeout",
+      "suffix": "Millisekunden",
+      "minimum": 0
+    },
+    {
+      "type": "Label",
+      "caption": " "
+    },
+    {
+      "type": "List",
+      "name": "Recipients",
+      "rowCount": 5,
+      "add": true,
+      "delete": true,
+      "columns": [
+        {
+          "caption": "Aktiviert",
+          "name": "Use",
+          "width": "100px",
+          "add": true,
+          "edit": {
+            "type": "CheckBox"
+          }
+        },
+        {
+          "caption": "Empfänger",
+          "name": "Name",
+          "width": "auto",
+          "add": "",
+          "edit": {
+            "type": "ValidationTextBox"
+          }
+        },
+        {
+          "caption": "Rufnummer",
+          "name": "PhoneNumber",
+          "width": "350px",
+          "add": "+49",
+          "edit": {
+            "type": "ValidationTextBox"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "RowLayout",
+      "items": [
+        {
+          "type": "ValidationTextBox",
+          "name": "Text",
+          "caption": "Nachricht"
+        },
+        {
+          "type": "Button",
+          "caption": "Versenden",
+          "onClick": "NMSMS_SendMessage($id, $Text);"
+        }
+      ]
+    }
+  ],
+  "status": [
+    {
+      "code": 101,
+      "icon": "active",
+      "caption": "NeXXt Mobile SMS wird erstellt"
+    },
+    {
+      "code": 102,
+      "icon": "active",
+      "caption": "NeXXt Mobile SMS ist aktiv"
+    },
+    {
+      "code": 103,
+      "icon": "active",
+      "caption": "NeXXt Mobile SMS wird gelöscht"
+    },
+    {
+      "code": 104,
+      "icon": "inactive",
+      "caption": "NeXXt Mobile SMS ist inaktiv"
+    },
+    {
+      "code": 200,
+      "icon": "inactive",
+      "caption": "Es ist Fehler aufgetreten, weitere Informationen unter Meldungen, im Log oder Debug!"
+    }
+  ]
+}

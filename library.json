@@ -1,0 +1,12 @@
+{
+    "id": "{5D8B19D3-334B-ED9C-4C34-8FE7EE06462D}",
+    "author": "Ulrich Bittner",
+    "name": "SMS",
+    "url": "https://github.com/ubittner/SMS",
+    "compatibility": {
+        "version": "5.5"
+    },
+    "version": "1.00",
+    "build": 1,
+    "date": 1620912008
+}
