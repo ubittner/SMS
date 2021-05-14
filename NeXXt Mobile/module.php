@@ -74,6 +74,38 @@ class SMSNeXXtMobile extends IPSModule
         }
     }
 
+    public function GetConfigurationForm()
+    {
+        $formData = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        // Status
+        $formData['status'][0] = [
+            'code'    => 101,
+            'icon'    => 'active',
+            'caption' => 'SMS NeXXt Mobile wird erstellt',
+        ];
+        $formData['status'][1] = [
+            'code'    => 102,
+            'icon'    => 'active',
+            'caption' => 'SMS NeXXt Mobile ist aktiv (ID ' . $this->InstanceID . ')',
+        ];
+        $formData['status'][2] = [
+            'code'    => 103,
+            'icon'    => 'active',
+            'caption' => 'SMS NeXXt Mobile wird gelöscht (ID ' . $this->InstanceID . ')',
+        ];
+        $formData['status'][3] = [
+            'code'    => 104,
+            'icon'    => 'inactive',
+            'caption' => 'SMS NeXXt Mobile ist inaktiv (ID ' . $this->InstanceID . ')',
+        ];
+        $formData['status'][4] = [
+            'code'    => 200,
+            'icon'    => 'inactive',
+            'caption' => 'Es ist Fehler aufgetreten, weitere Informationen unter Meldungen, im Log oder Debug! (ID ' . $this->InstanceID . ')',
+        ];
+        return json_encode($formData);
+    }
+
     #################### Private
 
     private function ValidateConfiguration(): bool
