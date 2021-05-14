@@ -77,7 +77,7 @@
         {
           "type": "Button",
           "caption": "Versenden",
-          "onClick": "SGSMS_SendMessage($id, $Text);"
+          "onClick": "SMSSG_SendMessage($id, $Text);"
         }
       ]
     }
@@ -86,22 +86,22 @@
     {
       "code": 101,
       "icon": "active",
-      "caption": "Sipgate SMS wird erstellt"
+      "caption": "SMS Sipgate wird erstellt"
     },
     {
       "code": 102,
       "icon": "active",
-      "caption": "Sipgate SMS ist aktiv"
+      "caption": "SMS Sipgate ist aktiv"
     },
     {
       "code": 103,
       "icon": "active",
-      "caption": "Sipgate SMS wird gelöscht"
+      "caption": "SMS Sipgate wird gelöscht"
     },
     {
       "code": 104,
       "icon": "inactive",
-      "caption": "Sipgate SMS ist inaktiv"
+      "caption": "SMS Sipgate ist inaktiv"
     },
     {
       "code": 200,

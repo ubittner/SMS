@@ -4,14 +4,15 @@
  * @author      Ulrich Bittner
  * @copyright   (c) 2021
  * @license     CC BY-NC-SA 4.0
- * @see         https://github.com/ubittner/SMS/tree/main/Sipgate
+ * @see         https://github.com/ubittner/SMS/tree/main/NeXXt%20Mobile
  */
 
+/** @noinspection DuplicatedCode */
 /** @noinspection PhpUnused */
 
 declare(strict_types=1);
 
-trait SGSMS_notification
+trait SMSNM_notification
 {
     public function SendMessage(string $Text): bool
     {
@@ -63,56 +64,55 @@ trait SGSMS_notification
         if (empty($PhoneNumber) || strlen($PhoneNumber) <= 3) {
             return false;
         }
-        $user = $this->ReadPropertyString('User');
-        if (empty($user)) {
+        $token = $this->ReadPropertyString('Token');
+        if (empty($token)) {
             return false;
         }
-        $password = $this->ReadPropertyString('Password');
-        if (empty($password)) {
+        $token = rawurlencode($token);
+        $originator = $this->ReadPropertyString('SenderNumber');
+        if (empty($originator) || strlen($originator) <= 3) {
             return false;
         }
+        $originator = rawurlencode($originator);
         $result = true;
-        $endpoint = 'https://api.sipgate.com/v2/sessions/sms';
-        $postfields = json_encode(['smsId' => 's0', 'recipient' => $PhoneNumber, 'message' => $Text]);
-        $userPassword = $user . ':' . $password;
+        $messageText = rawurlencode(substr($Text, 0, 360));
+        $endpoint = 'https://api.nexxtmobile.de/?mode=user&token=' . $token . '&function=sms&originator=' . $originator . '&recipient=' . $PhoneNumber . '&text=' . $messageText;
         $timeout = $this->ReadPropertyInteger('Timeout');
         $ch = curl_init();
         curl_setopt_array($ch, [
             CURLOPT_URL            => $endpoint,
-            CURLOPT_HTTPHEADER     => ['Accept: application/json', 'Content-Type: application/json'],
-            CURLOPT_USERPWD        => $userPassword,
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => $postfields,
+            CURLOPT_HEADER         => false,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FAILONERROR    => true,
             CURLOPT_CONNECTTIMEOUT => $timeout,
             CURLOPT_TIMEOUT        => 60]);
         $response = curl_exec($ch);
-        $responseData = true;
-        if (empty($response)) {
-            $response = 'No response received!';
-            $responseData = false;
-            $result = false;
-        }
-        $this->SendDebug(__FUNCTION__, 'Response: ' . $response, 0);
         if (!curl_errno($ch)) {
-            switch ($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) {
-                case $http_code >= 200 && $http_code < 300:
-                    if ($responseData) {
-                        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-                        $header = substr($response, 0, $header_size);
-                        $body = substr($response, $header_size);
-                        $this->SendDebug(__FUNCTION__, 'Header: ' . $header, 0);
-                        $this->SendDebug(__FUNCTION__, 'Body: ' . $body, 0);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            switch ($httpCode) {
+                case $httpCode >= 200 && $httpCode < 300:
+                    $this->SendDebug(__FUNCTION__, 'Response: ' . $result, 0);
+                    $data = json_decode($response, true);
+                    if (!empty($data)) {
+                        if (array_key_exists('isError', $data)) {
+                            $isError = $data['isError'];
+                            if ($isError) {
+                                $result = false;
+                                $this->SendDebug(__FUNCTION__, 'Es ist ein Fehler aufgetreten!', 0);
+                            }
+                        } else {
+                            $result = false;
+                            $this->SendDebug(__FUNCTION__, 'Es ist ein Fehler aufgetreten!', 0);
+                        }
                     }
                     break;
 
                 default:
-                    $this->SendDebug(__FUNCTION__, 'HTTP Code: ' . $http_code, 0);
+                    $this->SendDebug(__FUNCTION__, 'HTTP Code: ' . $httpCode, 0);
             }
         } else {
-            $error_msg = curl_error($ch);
             $result = false;
+            $error_msg = curl_error($ch);
             $this->SendDebug(__FUNCTION__, 'An error has occurred: ' . json_encode($error_msg), 0);
         }
         curl_close($ch);

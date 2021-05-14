@@ -7,16 +7,17 @@
  * @see         https://github.com/ubittner/SMS/tree/main/Sipgate
  */
 
+/** @noinspection DuplicatedCode */
 /** @noinspection PhpUnused */
 
 declare(strict_types=1);
 
 include_once __DIR__ . '/helper/autoload.php';
 
-class SipgateSMS extends IPSModule
+class SMSSipgate extends IPSModule
 {
     //Helper
-    use SGSMS_notification;
+    use SMSSG_notification;
 
     public function Create()
     {

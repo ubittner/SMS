@@ -77,7 +77,7 @@
         {
           "type": "Button",
           "caption": "Versenden",
-          "onClick": "NMSMS_SendMessage($id, $Text);"
+          "onClick": "SMSNM_SendMessage($id, $Text);"
         }
       ]
     }
@@ -86,22 +86,22 @@
     {
       "code": 101,
       "icon": "active",
-      "caption": "NeXXt Mobile SMS wird erstellt"
+      "caption": "SMS NeXXt Mobile wird erstellt"
     },
     {
       "code": 102,
       "icon": "active",
-      "caption": "NeXXt Mobile SMS ist aktiv"
+      "caption": "SMS NeXXt Mobile ist aktiv"
     },
     {
       "code": 103,
       "icon": "active",
-      "caption": "NeXXt Mobile SMS wird gelöscht"
+      "caption": "SMS NeXXt Mobile wird gelöscht"
     },
     {
       "code": 104,
       "icon": "inactive",
-      "caption": "NeXXt Mobile SMS ist inaktiv"
+      "caption": "SMS NeXXt Mobile ist inaktiv"
     },
     {
       "code": 200,

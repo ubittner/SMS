@@ -1,14 +1,14 @@
 {
   "id": "{965ABB3F-B4EE-7F9F-1E5E-ED386219EF7C}",
-  "name": "Sipgate SMS",
+  "name": "SMS Sipgate",
   "type": 3,
   "vendor": "Ulrich Bittner",
   "aliases": [
-    "Sipgate SMS"
+    "SMS Sipgate"
   ],
   "url": "https://github.com/ubittner/SMS/tree/main/Sipgate",
   "parentRequirements": [],
   "childRequirements": [],
   "implemented": [],
-  "prefix": "SGSMS"
+  "prefix": "SMSSG"
 }

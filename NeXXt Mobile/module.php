@@ -7,16 +7,17 @@
  * @see         https://github.com/ubittner/SMS/tree/main/NeXXt%20Mobile
  */
 
+/** @noinspection DuplicatedCode */
 /** @noinspection PhpUnused */
 
 declare(strict_types=1);
 
 include_once __DIR__ . '/helper/autoload.php';
 
-class NeXXtMobileSMS extends IPSModule
+class SMSNeXXtMobile extends IPSModule
 {
     //Helper
-    use NMSMS_notification;
+    use SMSNM_notification;
 
     public function Create()
     {
