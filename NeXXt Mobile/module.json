@@ -1,14 +1,14 @@
 {
-  "id": "{7E6DBE40-4438-ABB7-7EE0-93BC4F1AF0CE}",
-  "name": "SMS NeXXt Mobile",
-  "type": 3,
-  "vendor": "Ulrich Bittner",
-  "aliases": [
-    "SMS NeXXt Mobile"
-  ],
-  "url": "https://github.com/ubittner/SMS/tree/main/NeXXt%20Mobile",
-  "parentRequirements": [],
-  "childRequirements": [],
-  "implemented": [],
-  "prefix": "SMSNM"
+    "id": "{7E6DBE40-4438-ABB7-7EE0-93BC4F1AF0CE}",
+    "name": "SMS NeXXt Mobile",
+    "type": 3,
+    "vendor": "Ulrich Bittner",
+    "aliases": [
+        "SMS NeXXt Mobile"
+    ],
+    "url": "https://github.com/ubittner/SMS/tree/main/NeXXt%20Mobile",
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "SMSNM"
 }

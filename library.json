@@ -4,9 +4,9 @@
     "name": "SMS",
     "url": "https://github.com/ubittner/SMS",
     "compatibility": {
-        "version": "5.5"
+        "version": "6.1"
     },
-    "version": "1.00",
-    "build": 2,
-    "date": 1620971911
+    "version": "2.00",
+    "build": 1,
+    "date": 1695231726
 }

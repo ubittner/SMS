@@ -70,7 +70,6 @@ class SMSNeXXtMobile extends IPSModule
             case IPS_KERNELSTARTED:
                 $this->KernelReady();
                 break;
-
         }
     }
 

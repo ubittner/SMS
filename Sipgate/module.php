@@ -70,7 +70,6 @@ class SMSSipgate extends IPSModule
             case IPS_KERNELSTARTED:
                 $this->KernelReady();
                 break;
-
         }
     }
 

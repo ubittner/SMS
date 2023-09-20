@@ -1,85 +1,85 @@
 {
-  "elements": [
-    {
-      "type": "CheckBox",
-      "name": "Active",
-      "caption": "Aktiv"
-    },
-    {
-      "type": "PasswordTextBox",
-      "name": "Token",
-      "caption": "Token",
-      "width": "600px"
-    },
-    {
-      "type": "ValidationTextBox",
-      "name": "SenderNumber",
-      "caption": "Absendernummer",
-      "width": "600px"
-    },
-    {
-      "type": "NumberSpinner",
-      "name": "Timeout",
-      "caption": "Timeout",
-      "suffix": "Millisekunden",
-      "minimum": 0
-    },
-    {
-      "type": "Label",
-      "caption": " "
-    },
-    {
-      "type": "List",
-      "name": "Recipients",
-      "rowCount": 5,
-      "add": true,
-      "delete": true,
-      "columns": [
+    "elements": [
         {
-          "caption": "Aktiviert",
-          "name": "Use",
-          "width": "100px",
-          "add": true,
-          "edit": {
-            "type": "CheckBox"
-          }
+            "type": "CheckBox",
+            "name": "Active",
+            "caption": "Aktiv"
         },
         {
-          "caption": "Empfänger",
-          "name": "Name",
-          "width": "auto",
-          "add": "",
-          "edit": {
-            "type": "ValidationTextBox"
-          }
+            "type": "PasswordTextBox",
+            "name": "Token",
+            "caption": "Token",
+            "width": "600px"
         },
         {
-          "caption": "Rufnummer",
-          "name": "PhoneNumber",
-          "width": "350px",
-          "add": "+49",
-          "edit": {
-            "type": "ValidationTextBox"
-          }
+            "type": "ValidationTextBox",
+            "name": "SenderNumber",
+            "caption": "Absendernummer",
+            "width": "600px"
+        },
+        {
+            "type": "NumberSpinner",
+            "name": "Timeout",
+            "caption": "Timeout",
+            "suffix": "Millisekunden",
+            "minimum": 0
+        },
+        {
+            "type": "Label",
+            "caption": " "
+        },
+        {
+            "type": "List",
+            "name": "Recipients",
+            "rowCount": 5,
+            "add": true,
+            "delete": true,
+            "columns": [
+                {
+                    "caption": "Aktiviert",
+                    "name": "Use",
+                    "width": "100px",
+                    "add": true,
+                    "edit": {
+                        "type": "CheckBox"
+                    }
+                },
+                {
+                    "caption": "Empfänger",
+                    "name": "Name",
+                    "width": "auto",
+                    "add": "",
+                    "edit": {
+                        "type": "ValidationTextBox"
+                    }
+                },
+                {
+                    "caption": "Rufnummer",
+                    "name": "PhoneNumber",
+                    "width": "350px",
+                    "add": "+49",
+                    "edit": {
+                        "type": "ValidationTextBox"
+                    }
+                }
+            ]
         }
-      ]
-    }
-  ],
-  "actions": [
-    {
-      "type": "RowLayout",
-      "items": [
+    ],
+    "actions": [
         {
-          "type": "ValidationTextBox",
-          "name": "Text",
-          "caption": "Nachricht"
-        },
-        {
-          "type": "Button",
-          "caption": "Versenden",
-          "onClick": "SMSNM_SendMessage($id, $Text);"
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "ValidationTextBox",
+                    "name": "Text",
+                    "caption": "Nachricht"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Versenden",
+                    "onClick": "SMSNM_SendMessage($id, $Text);"
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
