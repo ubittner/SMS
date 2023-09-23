@@ -1,22 +1,89 @@
 <?php
 
-/*
- * @author      Ulrich Bittner
- * @copyright   (c) 2021
- * @license     CC BY-NC-SA 4.0
- * @see         https://github.com/ubittner/SMS/tree/main/NeXXt%20Mobile
+/**
+ * @project       SMS/NeXXt Mobile
+ * @file          SMSNM_Notification.php
+ * @author        Ulrich Bittner
+ * @copyright     2023 Ulrich Bittner
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection DuplicatedCode */
 /** @noinspection PhpUnused */
 
 declare(strict_types=1);
 
-trait SMSNM_notification
+trait SMSNM_Notification
 {
+    /**
+     * Gets the current balance from NeXXt Mobile.
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function GetCurrentBalance(): void
+    {
+        $this->SetTimerInterval('GetCurrentBalance', 0);
+        if ($this->CheckMaintenance()) {
+            return;
+        }
+        $token = $this->ReadPropertyString('Token');
+        if (empty($token)) {
+            return;
+        } else {
+            $token = rawurlencode($token);
+        }
+        $timeout = $this->ReadPropertyInteger('Timeout');
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => 'https://api.nexxtmobile.de/?mode=user&token=' . $token . '&function=getBalance',
+            CURLOPT_HEADER         => false,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FAILONERROR    => true,
+            CURLOPT_CONNECTTIMEOUT => $timeout,
+            CURLOPT_TIMEOUT        => 60]);
+        $result = curl_exec($ch);
+        if (!curl_errno($ch)) {
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $this->SendDebug(__FUNCTION__, 'HTTP Code: ' . $httpCode, 0);
+            switch ($httpCode) {
+                case $httpCode >= 200 && $httpCode < 300:
+                    $this->SendDebug(__FUNCTION__, 'Response: ' . $result, 0);
+                    $data = json_decode($result, true);
+                    if (!empty($data)) {
+                        if (array_key_exists('isError', $data)) {
+                            $isError = $data['isError'];
+                            if ($isError) {
+                                $this->SendDebug(__FUNCTION__, 'Es ist ein Fehler aufgetreten!', 0);
+                            }
+                        } else {
+                            $this->SendDebug(__FUNCTION__, 'Es ist ein Fehler aufgetreten!', 0);
+                        }
+                        if (array_key_exists('result', $data)) {
+                            if (array_key_exists('balanceFormated', $data['result'])) {
+                                $balance = $data['result']['balanceFormated'] . ' €';
+                                $this->SendDebug(__FUNCTION__, 'Aktuelles Guthaben: ' . $balance, 0);
+                                $this->SetValue('CurrentBalance', $balance);
+                            }
+                        }
+                    } else {
+                        $this->SendDebug(__FUNCTION__, 'Keine Rückantwort erhalten!', 0);
+                    }
+                    break;
+
+                default:
+                    $this->SendDebug(__FUNCTION__, 'HTTP Code: ' . $httpCode, 0);
+            }
+        } else {
+            $error_msg = curl_error($ch);
+            $this->SendDebug(__FUNCTION__, 'Es ist ein Fehler aufgetreten: ' . json_encode($error_msg), 0);
+        }
+    }
+
     public function SendMessage(string $Text): bool
     {
-        if (!$this->CheckInstance()) {
+        if ($this->CheckMaintenance()) {
             return false;
         }
         if (empty($Text)) {
@@ -41,7 +108,7 @@ trait SMSNM_notification
 
     public function SendMessageEx(string $Text, string $PhoneNumber): bool
     {
-        if (!$this->CheckInstance()) {
+        if ($this->CheckMaintenance()) {
             return false;
         }
         if (empty($Text)) {
@@ -55,7 +122,7 @@ trait SMSNM_notification
 
     private function SendData(string $Text, string $PhoneNumber): bool
     {
-        if (!$this->CheckInstance()) {
+        if ($this->CheckMaintenance()) {
             return false;
         }
         if (empty($Text)) {
@@ -91,7 +158,7 @@ trait SMSNM_notification
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             switch ($httpCode) {
                 case $httpCode >= 200 && $httpCode < 300:
-                    $this->SendDebug(__FUNCTION__, 'Response: ' . $result, 0);
+                    $this->SendDebug(__FUNCTION__, 'Response: ' . $response, 0);
                     $data = json_decode($response, true);
                     if (!empty($data)) {
                         if (array_key_exists('isError', $data)) {
@@ -116,6 +183,10 @@ trait SMSNM_notification
             $this->SendDebug(__FUNCTION__, 'An error has occurred: ' . json_encode($error_msg), 0);
         }
         curl_close($ch);
+        if ($result) {
+            //Get current balance
+            $this->SetTimerInterval('GetCurrentBalance', 30 * 1000);
+        }
         return $result;
     }
 }

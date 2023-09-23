@@ -1,12 +1,14 @@
 <?php
 
-/*
- * @author      Ulrich Bittner
- * @copyright   (c) 2021
- * @license     CC BY-NC-SA 4.0
- * @see         https://github.com/ubittner/SMS/tree/main/NeXXt%20Mobile
+/**
+ * @project       SMS/NeXXt Mobile
+ * @file          module.php
+ * @author        Ulrich Bittner
+ * @copyright     2023 Ulrich Bittner
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection DuplicatedCode */
 /** @noinspection PhpUnused */
 
@@ -17,22 +19,66 @@ include_once __DIR__ . '/helper/autoload.php';
 class SMSNeXXtMobile extends IPSModule
 {
     //Helper
-    use SMSNM_notification;
+    use SMSNM_Config;
+    use SMSNM_Notification;
+
+    //Constants
+    private const LIBRARY_GUID = '{5D8B19D3-334B-ED9C-4C34-8FE7EE06462D}';
+    private const MODULE_GUID = '{7E6DBE40-4438-ABB7-7EE0-93BC4F1AF0CE}';
+    private const MODULE_PREFIX = 'SMSNM';
 
     public function Create()
     {
         // Never delete this line!
         parent::Create();
 
-        // Properties
-        // Function
-        $this->RegisterPropertyBoolean('Active', true);
-        // NeXXt Mobile
+        ########## Properties
+
+        //Info
+        $this->RegisterPropertyString('Note', '');
+
+        //NeXXt Mobile
         $this->RegisterPropertyString('Token', '');
         $this->RegisterPropertyString('SenderNumber', '+49');
         $this->RegisterPropertyInteger('Timeout', 5000);
-        // Recipients
+
+        //Recipients
         $this->RegisterPropertyString('Recipients', '[]');
+
+        //Visualisation
+        $this->RegisterPropertyBoolean('EnableActive', false);
+        $this->RegisterPropertyBoolean('EnableCurrentBalance', true);
+        $this->RegisterPropertyBoolean('EnableGetCurrentBalance', true);
+
+        ########## Variables
+
+        //Active
+        $id = @$this->GetIDForIdent('Active');
+        $this->RegisterVariableBoolean('Active', 'Aktiv', '~Switch', 10);
+        $this->EnableAction('Active');
+        if (!$id) {
+            $this->SetValue('Active', true);
+        }
+
+        //Current balance
+        $id = @$this->GetIDForIdent('CurrentBalance');
+        $this->RegisterVariableString('CurrentBalance', 'Guthaben', '', 20);
+        if (!$id) {
+            IPS_SetIcon(@$this->GetIDForIdent('CurrentBalance'), 'Information');
+        }
+
+        //Get current balance
+        $profile = self::MODULE_PREFIX . $this->InstanceID . '.GetCurrentBalance';
+        if (!IPS_VariableProfileExists($profile)) {
+            IPS_CreateVariableProfile($profile, 1);
+        }
+        IPS_SetVariableProfileAssociation($profile, 0, 'Guthaben abfragen', 'Euro', 0x00FF00);
+        $this->RegisterVariableInteger('GetCurrentBalance', 'Guthaben abfragen', $profile, 30);
+        $this->EnableAction('GetCurrentBalance');
+
+        ########## Timers
+
+        $this->RegisterTimer('GetCurrentBalance', 0, self::MODULE_PREFIX . '_GetCurrentBalance(' . $this->InstanceID . ');');
     }
 
     public function ApplyChanges()
@@ -48,61 +94,63 @@ class SMSNeXXtMobile extends IPSModule
             return;
         }
 
+        //WebFront options
+        IPS_SetHidden($this->GetIDForIdent('Active'), !$this->ReadPropertyBoolean('EnableActive'));
+        IPS_SetHidden($this->GetIDForIdent('CurrentBalance'), !$this->ReadPropertyBoolean('EnableCurrentBalance'));
+        IPS_SetHidden($this->GetIDForIdent('GetCurrentBalance'), !$this->ReadPropertyBoolean('EnableGetCurrentBalance'));
+
+        $this->SetTimerInterval('GetCurrentBalance', 0);
+
         // Validation
-        $this->ValidateConfiguration();
+        if ($this->ValidateConfiguration()) {
+            $this->GetCurrentBalance();
+        }
     }
 
     public function Destroy()
     {
         // Never delete this line!
         parent::Destroy();
+
+        //Profiles
+        $profiles = ['GetCurrentBalance'];
+        if (!empty($profiles)) {
+            foreach ($profiles as $profile) {
+                $profileName = self::MODULE_PREFIX . '.' . $this->InstanceID . '.' . $profile;
+                if (IPS_VariableProfileExists($profileName)) {
+                    IPS_DeleteVariableProfile($profileName);
+                }
+            }
+        }
     }
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
-        $this->SendDebug('MessageSink', 'Message from SenderID ' . $SenderID . ' with Message ' . $Message . "\r\n Data: " . print_r($Data, true), 0);
-        if (!empty($Data)) {
-            foreach ($Data as $key => $value) {
-                $this->SendDebug(__FUNCTION__, 'Data[' . $key . '] = ' . json_encode($value), 0);
-            }
-        }
-        switch ($Message) {
-            case IPS_KERNELSTARTED:
-                $this->KernelReady();
-                break;
+        $this->SendDebug(__FUNCTION__, $TimeStamp . ', SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data: ' . print_r($Data, true), 0);
+        if ($Message == IPS_KERNELSTARTED) {
+            $this->KernelReady();
         }
     }
 
-    public function GetConfigurationForm()
+    public function UIShowMessage(string $Message): void
     {
-        $formData = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-        // Status
-        $formData['status'][0] = [
-            'code'    => 101,
-            'icon'    => 'active',
-            'caption' => 'SMS NeXXt Mobile wird erstellt',
-        ];
-        $formData['status'][1] = [
-            'code'    => 102,
-            'icon'    => 'active',
-            'caption' => 'SMS NeXXt Mobile ist aktiv (ID ' . $this->InstanceID . ')',
-        ];
-        $formData['status'][2] = [
-            'code'    => 103,
-            'icon'    => 'active',
-            'caption' => 'SMS NeXXt Mobile wird gelöscht (ID ' . $this->InstanceID . ')',
-        ];
-        $formData['status'][3] = [
-            'code'    => 104,
-            'icon'    => 'inactive',
-            'caption' => 'SMS NeXXt Mobile ist inaktiv (ID ' . $this->InstanceID . ')',
-        ];
-        $formData['status'][4] = [
-            'code'    => 200,
-            'icon'    => 'inactive',
-            'caption' => 'Es ist Fehler aufgetreten, weitere Informationen unter Meldungen, im Log oder Debug! (ID ' . $this->InstanceID . ')',
-        ];
-        return json_encode($formData);
+        $this->UpdateFormField('InfoMessage', 'visible', true);
+        $this->UpdateFormField('InfoMessageLabel', 'caption', $Message);
+    }
+
+    #################### Request Action
+
+    public function RequestAction($Ident, $Value)
+    {
+        switch ($Ident) {
+            case 'Active':
+                $this->SetValue($Ident, $Value);
+                break;
+
+            case 'GetCurrentBalance':
+                $this->GetCurrentBalance();
+                break;
+        }
     }
 
     #################### Private
@@ -144,8 +192,7 @@ class SMSNeXXtMobile extends IPSModule
             }
         }
         // Check instance
-        $active = $this->CheckInstance();
-        if (!$active) {
+        if ($this->CheckMaintenance()) {
             $result = false;
             $status = 104;
         }
@@ -158,12 +205,12 @@ class SMSNeXXtMobile extends IPSModule
         $this->ApplyChanges();
     }
 
-    private function CheckInstance(): bool
+    private function CheckMaintenance(): bool
     {
-        $result = $this->ReadPropertyBoolean('Active');
-        if (!$result) {
-            $this->SendDebug(__FUNCTION__, 'Abbruch, die Instanz inst inaktiv!', 0);
-            $this->LogMessage('ID ' . $this->InstanceID . ', ' . __FUNCTION__ . ', Abbruch, die Instanz ist inaktiv!', KL_WARNING);
+        $result = false;
+        if (!$this->GetValue('Active')) {
+            $this->SendDebug(__FUNCTION__, 'Abbruch, die Instanz ist inaktiv!', 0);
+            $result = true;
         }
         return $result;
     }
